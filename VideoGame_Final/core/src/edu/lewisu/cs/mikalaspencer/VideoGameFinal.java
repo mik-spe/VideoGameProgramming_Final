@@ -180,8 +180,8 @@ public class VideoGameFinal extends ApplicationAdapter
     int score;
     OrthographicCamera cam;
     float WORLDWIDTH, WORLDHEIGHT, vol;
-    LabelStyle labelStyle;
-    Label label;
+    LabelStyle labelStyle, screenLabelStyle;
+    Label label, screenLabels;
     CameraMove mover;
     Music creepyMusic;
     Sound glassBreak;
@@ -200,6 +200,12 @@ public class VideoGameFinal extends ApplicationAdapter
     {
         labelStyle = new LabelStyle();
         labelStyle.font = new BitmapFont(Gdx.files.internal("fonts/gameFont1030*.fnt"));
+    }
+
+    public void setupScreenLabelStyle()
+    {
+        screenLabelStyle = new LabelStyle();
+        screenLabelStyle.font = new BitmapFont(Gdx.files.internal("fonts/smallerFont*.fnt"));
     }
 
     @Override
@@ -260,13 +266,14 @@ public class VideoGameFinal extends ApplicationAdapter
 
         // Start on the title scene
         scene = 0;
-
+        
         // Create the label
         label = new Label("Score", labelStyle);
-        title = new ActionLabel("Night Light", 220, 400,"fonts/gameFont1030*.fnt");
-        author = new ActionLabel("by Mikala Spencer", 210, 350,"fonts/smallerFont*.fnt");
-        instructions = new ActionLabel("Make it to the goal before your glowsticks run out.\nFind glowsticks or teddy bears to increase your score.\nGet scared and your score will decrease.\nWhen your score reaches '0' you will faint and start over.\n\nPress 'ENTER' to start the game\nPress 'ESCAPE' to exit.", 70, 90,"fonts/smallerFont*.fnt");
-        pause = new ActionLabel("Press 'P' to return to the game\nPress 'ESCAPE' to quit.\n\nSelect the left icon to lower the volume\nor\nSelect the right icon to raise the volume", 220, 300,"fonts/smallerFont*.fnt");
+        //screenLabels = new Label("Screens", screenLabelStyle);
+        title = new ActionLabel("Night Light", 220 + (cam.position.x-WIDTH/2), 400 + (cam.position.y - HEIGHT/2), "fonts/gameFont1030*.fnt");
+        author = new ActionLabel("by Mikala Spencer", 210 + (cam.position.x-WIDTH/2), 350 + (cam.position.y - HEIGHT/2),"fonts/smallerFont*.fnt");
+        instructions = new ActionLabel("Make it to the goal before your glowsticks run out.\nFind glowsticks or teddy bears to increase your score.\nGet scared and your score will decrease.\nWhen your score reaches '0' you will faint and start over.\n\nPress 'ENTER' to start the game\nPress 'ESCAPE' to exit.", 70 + (cam.position.x-WIDTH/2), 90 + (cam.position.y - HEIGHT/2), "fonts/smallerFont*.fnt");
+        pause = new ActionLabel("Press 'P' to return to the game\nPress 'ESCAPE' to quit.\n\nSelect the left icon to lower the volume\nor\nSelect the right icon to raise the volume", 220 + (cam.position.x-WIDTH/2), 300 + (cam.position.y - HEIGHT/2), "fonts/smallerFont*.fnt");
 
         // World coordinates == Screen coordinates at the beginning
         label.setPosition(20,400); 
@@ -498,7 +505,7 @@ public class VideoGameFinal extends ApplicationAdapter
         batch.draw(background,-1024,-768);
         batch.draw(img, imgX, imgY);
         label.draw(batch,1);
-
+        
         handleInput();
 
         // Draw glowstick icon
@@ -527,9 +534,12 @@ public class VideoGameFinal extends ApplicationAdapter
         
         else
         {
+            //screenLabels.setText("Night Light");
+            //screenLabels.setPosition(220 + (cam.position.x-WIDTH/2), 400 + (cam.position.y - HEIGHT/2));
+
             batch.begin();
 
-            batch.draw(titleImg,0,0);
+            batch.draw(titleImg, (cam.position.x-WIDTH/2), (cam.position.y - HEIGHT/2));
             title.draw(batch,1f);
             author.draw(batch,1f);
             instructions.draw(batch,1f);
@@ -559,7 +569,7 @@ public class VideoGameFinal extends ApplicationAdapter
         {
             batch.begin();
             
-            batch.draw(pauseImg,0,0);
+            batch.draw(pauseImg, (cam.position.x-WIDTH/2), (cam.position.y - HEIGHT/2));
             pause.draw(batch,1f);
 
             // Display the volume controls
