@@ -178,10 +178,10 @@ public class VideoGameFinal extends ApplicationAdapter
     float imgWidth, imgHeight;
     float WIDTH, HEIGHT;
     int score;
-    OrthographicCamera cam;
+    OrthographicCamera cam, screenCam;
     float WORLDWIDTH, WORLDHEIGHT, vol;
-    LabelStyle labelStyle, screenLabelStyle;
-    Label label, screenLabels;
+    LabelStyle labelStyle;
+    Label label;
     CameraMove mover;
     Music creepyMusic;
     Sound glassBreak;
@@ -200,12 +200,6 @@ public class VideoGameFinal extends ApplicationAdapter
     {
         labelStyle = new LabelStyle();
         labelStyle.font = new BitmapFont(Gdx.files.internal("fonts/gameFont1030*.fnt"));
-    }
-
-    public void setupScreenLabelStyle()
-    {
-        screenLabelStyle = new LabelStyle();
-        screenLabelStyle.font = new BitmapFont(Gdx.files.internal("fonts/smallerFont*.fnt"));
     }
 
     @Override
@@ -256,10 +250,12 @@ public class VideoGameFinal extends ApplicationAdapter
 		artist = new ImageBasedScreenObjectDrawer(batch);
 
         cam = new OrthographicCamera(WIDTH,HEIGHT);
+        screenCam = new OrthographicCamera(WIDTH,HEIGHT);
         cam.translate(WIDTH/2,HEIGHT/2);
+        screenCam.translate(WIDTH/2,HEIGHT/2);
         cam.update();
+        screenCam.update();
         batch.setProjectionMatrix(cam.combined);
-        //System.out.println(cam.position.x + " " + cam.position.y);
         
         // Set up label
         setupLabelStyle();
@@ -269,11 +265,10 @@ public class VideoGameFinal extends ApplicationAdapter
         
         // Create the label
         label = new Label("Score", labelStyle);
-        //screenLabels = new Label("Screens", screenLabelStyle);
-        title = new ActionLabel("Night Light", 220 + (cam.position.x-WIDTH/2), 400 + (cam.position.y - HEIGHT/2), "fonts/gameFont1030*.fnt");
-        author = new ActionLabel("by Mikala Spencer", 210 + (cam.position.x-WIDTH/2), 350 + (cam.position.y - HEIGHT/2),"fonts/smallerFont*.fnt");
-        instructions = new ActionLabel("Make it to the goal before your glowsticks run out.\nFind glowsticks or teddy bears to increase your score.\nGet scared and your score will decrease.\nWhen your score reaches '0' you will faint and start over.\n\nPress 'ENTER' to start the game\nPress 'ESCAPE' to exit.", 70 + (cam.position.x-WIDTH/2), 90 + (cam.position.y - HEIGHT/2), "fonts/smallerFont*.fnt");
-        pause = new ActionLabel("Press 'P' to return to the game\nPress 'ESCAPE' to quit.\n\nSelect the left icon to lower the volume\nor\nSelect the right icon to raise the volume", 220 + (cam.position.x-WIDTH/2), 300 + (cam.position.y - HEIGHT/2), "fonts/smallerFont*.fnt");
+        title = new ActionLabel("Night Light", 220, 400, "fonts/gameFont1030*.fnt");
+        author = new ActionLabel("by Mikala Spencer", 210, 350,"fonts/smallerFont*.fnt");
+        instructions = new ActionLabel("Make it to the goal before your glowsticks run out.\nFind glowsticks or teddy bears to increase your score.\nGet scared and your score will decrease.\nWhen your score reaches '0' you will faint and start over.\n\nPress 'ENTER' to start the game\nPress 'ESCAPE' to exit.", 70, 90, "fonts/smallerFont*.fnt");
+        pause = new ActionLabel("Press 'P' to return to the game\nPress 'ESCAPE' to quit.\n\nSelect the left icon to lower the volume\nor\nSelect the right icon to raise the volume", 130, 180, "fonts/smallerFont*.fnt");
 
         // World coordinates == Screen coordinates at the beginning
         label.setPosition(20,400); 
@@ -534,12 +529,9 @@ public class VideoGameFinal extends ApplicationAdapter
         
         else
         {
-            //screenLabels.setText("Night Light");
-            //screenLabels.setPosition(220 + (cam.position.x-WIDTH/2), 400 + (cam.position.y - HEIGHT/2));
-
             batch.begin();
 
-            batch.draw(titleImg, (cam.position.x-WIDTH/2), (cam.position.y - HEIGHT/2));
+            batch.draw(titleImg,0,0);
             title.draw(batch,1f);
             author.draw(batch,1f);
             instructions.draw(batch,1f);
@@ -569,12 +561,12 @@ public class VideoGameFinal extends ApplicationAdapter
         {
             batch.begin();
             
-            batch.draw(pauseImg, (cam.position.x-WIDTH/2), (cam.position.y - HEIGHT/2));
+            batch.draw(pauseImg,0,0);
             pause.draw(batch,1f);
 
             // Display the volume controls
-            batch.draw(volDown, 550+(cam.position.x-WIDTH/2), -10+(cam.position.y-HEIGHT/2));
-            batch.draw(volUp, 600+(cam.position.x-WIDTH/2), 0+(cam.position.y-HEIGHT/2));
+            batch.draw(volDown, 550, -10);
+            batch.draw(volUp, 600, 0);
 
             if (Gdx.input.isButtonJustPressed(Buttons.LEFT))
             {
@@ -602,14 +594,17 @@ public class VideoGameFinal extends ApplicationAdapter
     {
         if (scene == 1) 
         {
+            batch.setProjectionMatrix(cam.combined);
 			renderMainScene();
         } 
         else if (scene == 0)
         {
+            batch.setProjectionMatrix(screenCam.combined);
 			renderTitleScene();
         }
         else if (scene == 2)
         {
+            batch.setProjectionMatrix(screenCam.combined);
             renderPauseScene();
         }
     }
