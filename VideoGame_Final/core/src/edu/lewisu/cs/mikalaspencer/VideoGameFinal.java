@@ -8,6 +8,8 @@ import java.util.ArrayList;
  * This program is a video game.
  */
 
+ // "LATER" keyword used for future things to work on.
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Buttons;
@@ -29,146 +31,6 @@ import edu.lewisu.cs.cpsc41000.common.labels.ActionLabel;
 import edu.lewisu.cs.cpsc41000.common.labels.SoundLabel;
 import edu.lewisu.cs.cpsc41000.common.*;
 
-// FIX: Move to common classes later
-abstract class CameraEffect 
-{
-	protected OrthographicCamera cam;
-	protected int duration, progress;
-	protected float imgX, imgY;
-	protected ShapeRenderer renderer;
-    protected SpriteBatch batch;
-
-	// Constructor
-	public CameraEffect(OrthographicCamera cam, int duration, SpriteBatch batch, ShapeRenderer renderer)
-	{
-		this.cam = cam;
-		this.duration = duration;
-		this.batch = batch;
-		this.renderer = renderer;
-		progress = duration;
-	}
-
-	public boolean isActive() 
-	{
-		// Returns if the camera is active or not
-		return (progress < duration);
-	}
-
-	public void updateCamera() 
-	{
-		// Update the camera
-		cam.update();
-
-		if (renderer != null) 
-		{
-			// Update renderer
-			renderer.setProjectionMatrix(cam.combined);
-		}
-
-		if (batch != null) 
-		{
-			// Update batch
-			batch.setProjectionMatrix(cam.combined);
-		}
-	}
-
-	public void start() 
-	{
-		progress = 0;
-	}
-}
-
-// Camera Effect of moving the camera
-class CameraMove extends CameraEffect 
-{
-	private int intensity;
-	private int speed;
-
-	public CameraMove(OrthographicCamera cam, int duration, SpriteBatch batch, ShapeRenderer renderer) 
-	{
-		super(cam, duration, batch, renderer);
-	}
-
-	public int getIntensity() 
-	{
-		return intensity;
-	}
-
-	public void setIntensity(int intensity) 
-	{
-		if (intensity < 0) 
-		{
-			this.intensity = 0;
-		} 
-		else 
-		{
-			this.intensity = intensity;
-		}
-	}
-
-	public int getSpeed() 
-	{
-		return speed;
-	}
-
-	public void setSpeed(int speed) 
-	{
-		if (speed < 0) 
-		{
-			speed = 0;
-		} 
-		else 
-		{
-			if (speed > duration) 
-			{
-				speed = duration / 2;
-			} 
-			else 
-			{
-				this.speed = speed;
-			}
-		}
-	}
-
-	@Override
-	public boolean isActive() 
-	{
-		return super.isActive() && speed > 0;
-	}
-
-	public CameraMove(OrthographicCamera cam, int duration, SpriteBatch batch, ShapeRenderer renderer, int intensity, int speed) 
-	{
-		super(cam, duration, batch, renderer);
-		setIntensity(intensity);
-		setSpeed(speed);
-	}
-
-	public void play() 
-	{
-		if (isActive()) 
-		{
-			if (progress % speed == 0) 
-			{
-				cam.rotate(180f);
-			}
-
-			progress++;
-
-			if (!isActive()) 
-			{
-				cam.translate(0, 0);
-			}
-
-			updateCamera();
-		}
-	}
-
-	public void start() 
-	{
-		super.start();
-		updateCamera();
-	}
-}
 
 public class VideoGameFinal extends ApplicationAdapter 
 {
@@ -207,6 +69,7 @@ public class VideoGameFinal extends ApplicationAdapter
     {
         batch = new SpriteBatch();
         
+        // Backgrounds and images
         img = new Texture("avatar.png");
         background = new Texture("nightLight_map.JPEG");
         titleImg = new Texture("starrySky.jpg");
@@ -214,6 +77,7 @@ public class VideoGameFinal extends ApplicationAdapter
         miniMap = new Texture("nightLight_mapDetail.JPEG");
         score = 5;
 
+        // LATER: BOUNDARIES
         boundaries = new ArrayList<Boundary>();
 		boundaries.add(new Boundary(269,0,279,333));
 		boundaries.add(new Boundary(460,0,470,333));
@@ -241,7 +105,7 @@ public class VideoGameFinal extends ApplicationAdapter
         imgWidth = img.getWidth();
         imgHeight = img.getHeight();
 
-        // FIX
+        // LATER: BOUNDARIES
         obj = new MobileImageBasedScreenObject(img,150,0,true);
 		walls = new ArrayList<ImageBasedScreenObject>();
 		Texture wallTex = new Texture("bush.png");
@@ -249,6 +113,7 @@ public class VideoGameFinal extends ApplicationAdapter
 		walls.add(new ImageBasedScreenObject(wallTex,500,0,true));
 		artist = new ImageBasedScreenObjectDrawer(batch);
 
+        // Cameras: main game one and one for title & pause screens
         cam = new OrthographicCamera(WIDTH,HEIGHT);
         screenCam = new OrthographicCamera(WIDTH,HEIGHT);
         cam.translate(WIDTH/2,HEIGHT/2);
@@ -263,7 +128,7 @@ public class VideoGameFinal extends ApplicationAdapter
         // Start on the title scene
         scene = 0;
         
-        // Create the label
+        // Create labels
         label = new Label("Score", labelStyle);
         title = new ActionLabel("Night Light", 220, 400, "fonts/gameFont1030*.fnt");
         author = new ActionLabel("by Mikala Spencer", 210, 350,"fonts/smallerFont*.fnt");
@@ -276,14 +141,17 @@ public class VideoGameFinal extends ApplicationAdapter
         // Camera Effect
         mover = new CameraMove(cam, 10, batch, null, 2, 10);
 
-        // Audio
+        // Audios
         creepyMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/creepy_atmosphere.mp3"));
+        // LATER: USE FOR OBSTACLES BEING HIT
         glassBreak = Gdx.audio.newSound(Gdx.files.internal("audio/glass.mp3"));
 
         creepyMusic.setLooping(true);
         creepyMusic.setVolume(vol);
         creepyMusic.play();
     }
+
+    // LATER: ADD RANDOMIZED ITEMS & OBSTACLES & GOAL
 
     public void handleInput() 
     {
@@ -305,16 +173,10 @@ public class VideoGameFinal extends ApplicationAdapter
         }
         if (Gdx.input.isKeyJustPressed(Keys.SHIFT_LEFT))
         {
-            // Play sound
-            //glassBreak.setVolume(score, vol);
-            glassBreak.play();
+            // Flips camera upside down
+            mover.start();
         }
-        if (Gdx.input.isKeyJustPressed(Keys.J))
-        {
-            // Centered on center of screen
-            lockCoordinatesJail(WIDTH, HEIGHT);
-        }
-        if (Gdx.input.isKeyJustPressed(Keys.U))
+        if (Gdx.input.isKeyJustPressed(Keys.C))
         {
             // Unlocked from center screen
             WIDTH = Gdx.graphics.getWidth();
@@ -327,8 +189,8 @@ public class VideoGameFinal extends ApplicationAdapter
         }
         if (Gdx.input.isKeyJustPressed(Keys.SPACE))
         {
-            // Flips camera upside down
-            mover.start();
+            // Centered on center of screen
+            lockCoordinatesJail(WIDTH, HEIGHT);
         }
         mover.play();
     }
@@ -440,9 +302,11 @@ public class VideoGameFinal extends ApplicationAdapter
 
     public void lockCoordinatesJail(float targetWidth, float targetHeight)
     {
-        // When pressed J, lock the character in center of screen
+        // When pressed SPACEBAR, lock the character in center of screen
         WIDTH = imgWidth * 1.5f;
         HEIGHT = imgHeight * 1.5f;
+
+        // LATER: FIX SO SCORE AND INSTRUCTIONS ARE DISPLAYED WHEN IN CENTER MODE
     }
 
     public void lockCoordinatesJail() 
