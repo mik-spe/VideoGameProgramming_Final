@@ -1,6 +1,7 @@
 package edu.lewisu.cs.mikalaspencer;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Mikala Spencer
@@ -8,7 +9,7 @@ import java.util.ArrayList;
  * This program is a video game.
  */
 
- // "LATER" keyword used for future things to work on.
+// "LATER" keyword used for future things to work on.
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -25,6 +26,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
+import com.badlogic.gdx.utils.Timer;
 
 import edu.lewisu.cs.cpsc41000.common.cameraeffects.*;
 import edu.lewisu.cs.cpsc41000.common.labels.ActionLabel;
@@ -34,12 +36,13 @@ import edu.lewisu.cs.cpsc41000.common.*;
 
 public class VideoGameFinal extends ApplicationAdapter 
 {
-	SpriteBatch batch;
-    Texture img, background, volDown, volUp, glowStick, teddyBear, miniMap, titleImg, pauseImg;
+    SpriteBatch batch;
+    EdgeHandler edgy;
+    Texture img, background, volDown, volUp, glowStick, teddyBear, miniMap, titleImg, pauseImg, gameOverImg;
     float imgX, imgY;
     float imgWidth, imgHeight;
     float WIDTH, HEIGHT;
-    int score;
+    int score, goal, timeAux, itemx, itemy, item;
     OrthographicCamera cam, screenCam;
     float WORLDWIDTH, WORLDHEIGHT, vol;
     LabelStyle labelStyle;
@@ -50,13 +53,12 @@ public class VideoGameFinal extends ApplicationAdapter
     SoundLabel obstacle;
     MobileImageBasedScreenObject obj;
 	ImageBasedScreenObjectDrawer artist;
-	ArrayList<ImageBasedScreenObject> walls;
-    EdgeHandler edgy;
+    ArrayList<ImageBasedScreenObject> walls;
     
-    // 0 - title screen, 1 - game screen, 2 - pause screen
+    // 0 - title screen, 1 - game screen, 2 - pause screen, 3 - game over screen
     int scene; 
-	ActionLabel title, author, instructions, pause;
-	ArrayList<Boundary> boundaries;
+	ActionLabel title, author, instructions, pause, gameOver;
+    ArrayList<Boundary> boundaries;
 
 	public void setupLabelStyle() 
     {
@@ -68,19 +70,80 @@ public class VideoGameFinal extends ApplicationAdapter
     public void create () 
     {
         batch = new SpriteBatch();
+        Random rnd = new Random();
         
         // Backgrounds and images
         img = new Texture("avatar.png");
         background = new Texture("nightLight_map.JPEG");
         titleImg = new Texture("starrySky.jpg");
         pauseImg = new Texture("pauseSky.jpg");
+        gameOverImg = new Texture("pauseSky.jpg");
         miniMap = new Texture("nightLight_mapDetail.JPEG");
         score = 5;
 
+        goal = rnd.nextInt(10);
+        if (goal == 0)
+        {
+
+        }
+        else if (goal == 1)
+        {
+            
+        }
+        else if (goal == 2)
+        {
+            
+        }
+        else if (goal == 3)
+        {
+            
+        }
+        else if (goal == 4)
+        {
+            
+        }
+        else if (goal == 5)
+        {
+            
+        }
+        else if (goal == 6)
+        {
+            
+        }
+        else if (goal == 7)
+        {
+            
+        }
+        else if (goal == 8)
+        {
+            
+        }
+        else if (goal == 9)
+        {
+            
+        }
         // LATER: BOUNDARIES
+        /** outlines
+        * starting - (0, -725)
+        * each block: ~290 x 290
+        * left boundary - (-705,-725) to (-705, -145)
+        * right boundary - (415, -725) to (415, -145)
+        * 2nd row boundary left - (-165, -145) to (-165, 415)
+        * 2nd row boundary right - (415, -145) to (415, 415)
+        * top room - (-165, 635) to (125, 635)
+        */
         boundaries = new ArrayList<Boundary>();
-		boundaries.add(new Boundary(269,0,279,333));
-		boundaries.add(new Boundary(460,0,470,333));
+        // Main block of bottom 2 rows of rooms
+		boundaries.add(new Boundary(-705, -725, -705, -145));
+        boundaries.add(new Boundary(415, -725, 415, -145));
+        // 2nd row of 2 rooms
+        boundaries.add(new Boundary(-165, -145, -165, 415));
+        boundaries.add(new Boundary(415, -145, 415, 415));
+        // Top room
+        boundaries.add(new Boundary(-165, 635, 125, 635));
+
+        // Edges
+        //edgy = new EdgeHandler(obj,cam,batch,-300,1200,-300,1200,20,EdgeHandler.EdgeConstants.PAN,EdgeHandler.EdgeConstants.PAN);
 
         // Volume controls
 		volDown = new Texture("volDown.png");
@@ -107,8 +170,12 @@ public class VideoGameFinal extends ApplicationAdapter
 
         // LATER: BOUNDARIES
         obj = new MobileImageBasedScreenObject(img,150,0,true);
+        obj.setMaxSpeed(100);
+		obj.setAcceleration(400);
+        obj.setDeceleration(100);
+        
 		walls = new ArrayList<ImageBasedScreenObject>();
-		Texture wallTex = new Texture("bush.png");
+		Texture wallTex = new Texture("verticalBoundary.png");
 		walls.add(new ImageBasedScreenObject(wallTex,0,0,true));
 		walls.add(new ImageBasedScreenObject(wallTex,500,0,true));
 		artist = new ImageBasedScreenObjectDrawer(batch);
@@ -134,6 +201,7 @@ public class VideoGameFinal extends ApplicationAdapter
         author = new ActionLabel("by Mikala Spencer", 210, 350,"fonts/smallerFont*.fnt");
         instructions = new ActionLabel("Make it to the goal before your glowsticks run out.\nFind glowsticks or teddy bears to increase your score.\nGet scared and your score will decrease.\nWhen your score reaches '0' you will faint and start over.\n\nPress 'ENTER' to start the game\nPress 'ESCAPE' to exit.", 70, 90, "fonts/smallerFont*.fnt");
         pause = new ActionLabel("Press 'P' to return to the game\nPress 'ESCAPE' to quit.\n\nSelect the left icon to lower the volume\nor\nSelect the right icon to raise the volume", 130, 180, "fonts/smallerFont*.fnt");
+        gameOver = new ActionLabel("Game Over\nPress 'ESCAPE' to return to the Title Screen.", 130, 180, "fonts/smallerFont*.fnt");
 
         // World coordinates == Screen coordinates at the beginning
         label.setPosition(20,400); 
@@ -158,18 +226,26 @@ public class VideoGameFinal extends ApplicationAdapter
         if (Gdx.input.isKeyPressed(Keys.LEFT)) 
         {
             imgX-=10;
+
+            obj.accelerateAtAngle(180);
         }
         if (Gdx.input.isKeyPressed(Keys.RIGHT)) 
         {
             imgX+=10;
+
+            obj.accelerateAtAngle(0);
         }
         if (Gdx.input.isKeyPressed(Keys.UP)) 
         {
             imgY+=10;
+
+            obj.accelerateAtAngle(90);
         }
         if (Gdx.input.isKeyPressed(Keys.DOWN)) 
         {
             imgY-=10; 
+
+            obj.accelerateAtAngle(270);
         }
         if (Gdx.input.isKeyJustPressed(Keys.SHIFT_LEFT))
         {
@@ -275,6 +351,14 @@ public class VideoGameFinal extends ApplicationAdapter
         }
     }
 
+    public void itemRan()
+    {
+        Random rnd = new Random();
+        item = rnd.nextInt(10);
+        itemx = rnd.nextInt(400);
+        itemy = rnd.nextInt(500);
+    }
+
     public void wrapCoordinates(float targetWidth, float targetHeight) {
         if (imgX > targetWidth) 
         {
@@ -298,7 +382,7 @@ public class VideoGameFinal extends ApplicationAdapter
     public void wrapCoordinates() 
     {
         wrapCoordinates(WIDTH, HEIGHT);
-    }
+    } 
 
     public void lockCoordinatesJail(float targetWidth, float targetHeight)
     {
@@ -314,7 +398,7 @@ public class VideoGameFinal extends ApplicationAdapter
         lockCoordinatesJail(WIDTH, HEIGHT);
     }
 
-    public void lockCoordinates(float targetWidth, float targetHeight) 
+   public void lockCoordinates(float targetWidth, float targetHeight) 
     {
         if (imgX > targetWidth - imgWidth) 
         {
@@ -338,19 +422,24 @@ public class VideoGameFinal extends ApplicationAdapter
     public void lockCoordinates() 
     {
         lockCoordinates(WIDTH, HEIGHT);
-    }
+    } 
 
     public void renderMainScene()
     {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         panCoordinates(20);
-        
+
         if (Gdx.input.isKeyJustPressed(Keys.P))
         {
             // Go to pause screen
             scene = 2;
             return;
+        }
+        else if (score == 0)
+        {
+            // Player loses and gets Game Over
+            scene = 3;
         }
 
         label.setText("Press 'P' to pause.\nScore: " + score);
@@ -358,12 +447,60 @@ public class VideoGameFinal extends ApplicationAdapter
         label.setPosition(20+(cam.position.x-WIDTH/2),415+cam.position.y-HEIGHT/2);
 
         mover.play();
+
+        float dt = Gdx.graphics.getDeltaTime();
+
+        obj.applyPhysics(dt);
+        if (obj.getSpeed() > 0) 
+        {
+			obj.setRotation(obj.getMotionAngle()-90f);
+		}
+
+        Vector2 bounce;
         
+        for (ImageBasedScreenObject wall : walls) 
+        {
+            if (obj.overlaps(wall)) 
+            {
+				bounce = obj.preventOverlap(wall);
+				obj.rebound(bounce.angle(),1f);
+				System.out.println("Bam!");
+			}
+        }
+        
+        for (Boundary b : boundaries) 
+        {
+            if (obj.overlaps(b)) 
+            {
+				bounce = obj.preventOverlap(b);
+                obj.rebound(bounce.angle(),1f);
+            }
+        }
+
+        // LATER - fix so the glowsticks randomly appear at a set interval
+        itemRan();
+        
+        //edgy.enforceEdges();
         batch.begin();
 
         batch.draw(background,-1024,-768);
         batch.draw(img, imgX, imgY);
         label.draw(batch,1);
+
+        if (item == 5)
+        { 
+            batch.draw(glowStick, itemx, itemy);
+            if (imgX == itemx || imgY == itemy)
+            {
+                score = score + 1;
+            }
+        }
+
+        //artist.draw(obj);
+        for (ImageBasedScreenObject wall : walls) 
+        {
+			artist.draw(wall);
+        }
         
         handleInput();
 
@@ -453,6 +590,18 @@ public class VideoGameFinal extends ApplicationAdapter
         }
     }
 
+    public void renderGameOverScene()
+    {
+        // Game Over screen when player faints
+
+        batch.begin();
+            
+        batch.draw(gameOverImg,0,0);
+        gameOver.draw(batch,1f);
+
+        batch.end();
+    }
+
     @Override
     public void render() 
     {
@@ -470,6 +619,11 @@ public class VideoGameFinal extends ApplicationAdapter
         {
             batch.setProjectionMatrix(screenCam.combined);
             renderPauseScene();
+        }
+        else if (scene == 3)
+        {
+            batch.setProjectionMatrix(screenCam.combined);
+            renderGameOverScene();
         }
     }
     

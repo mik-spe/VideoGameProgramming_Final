@@ -114,15 +114,16 @@ public class EdgeHandler {
         }
     }
     
-    public void panCoordinates(int axis) {
-        float x = obj.getXPos();  // world coordinates
-        float y = obj.getYPos();
+    public void panCoordinates(int axis) 
+    {
+        float x = 0; //obj.getXPos();  // world coordinates
+        float y = -725; //obj.getYPos();
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
         // this should be adjusted if you decide to position the camera
         // initially somewhere other than screenWidth/2 and screenHeight/2
-        float screenPosX = x - (cam.position.x - screenWidth/2);
-        float screenPosY = y - (cam.position.y - screenHeight/2);
+        float screenPosX = screenWidth/2; //x - (cam.position.x - screenWidth/2);
+        float screenPosY = screenHeight/2; //y - (cam.position.y - screenHeight/2);
         if (axis == EdgeConstants.XAXIS) {
             if (screenPosX > screenWidth - obj.getWidth() - border) {
             	// pan because we are moving right off the screen

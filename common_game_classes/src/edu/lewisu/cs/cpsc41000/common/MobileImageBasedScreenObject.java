@@ -169,6 +169,6 @@ public class MobileImageBasedScreenObject extends AnimatedImageBasedScreenObject
     }
     public void rotate(float dAngle) {
         rotation += dAngle;
-    } 
+    }
 }
 
