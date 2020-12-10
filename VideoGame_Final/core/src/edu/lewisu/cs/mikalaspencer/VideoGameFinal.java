@@ -41,8 +41,8 @@ public class VideoGameFinal extends ApplicationAdapter
     Texture img, background, volDown, volUp, glowStick, teddyBear, miniMap, titleImg, pauseImg, gameOverImg;
     float imgX, imgY;
     float imgWidth, imgHeight;
-    float WIDTH, HEIGHT;
-    int score, goal, timeAux, itemx, itemy, item;
+    float WIDTH, HEIGHT, spawnTime, spawnDelay, spawn;
+    int score, goal, timeAux, itemx, itemy, item, shadowx, shadowy;
     OrthographicCamera cam, screenCam;
     float WORLDWIDTH, WORLDHEIGHT, vol;
     LabelStyle labelStyle;
@@ -57,7 +57,7 @@ public class VideoGameFinal extends ApplicationAdapter
     
     // 0 - title screen, 1 - game screen, 2 - pause screen, 3 - game over screen
     int scene; 
-	ActionLabel title, author, instructions, pause, gameOver;
+	ActionLabel title, author, instructions, pause, gameOver, shadow;
     ArrayList<Boundary> boundaries;
 
 	public void setupLabelStyle() 
@@ -71,6 +71,10 @@ public class VideoGameFinal extends ApplicationAdapter
     {
         batch = new SpriteBatch();
         Random rnd = new Random();
+        shadowx = (-700 + rnd.nextInt(1100));
+        shadowy = (-700 + rnd.nextInt(1300));
+
+        spawnDelay = 1;
         
         // Backgrounds and images
         img = new Texture("avatar.png");
@@ -202,6 +206,7 @@ public class VideoGameFinal extends ApplicationAdapter
         instructions = new ActionLabel("Make it to the goal before your glowsticks run out.\nFind glowsticks or teddy bears to increase your score.\nGet scared and your score will decrease.\nWhen your score reaches '0' you will faint and start over.\n\nPress 'ENTER' to start the game\nPress 'ESCAPE' to exit.", 70, 90, "fonts/smallerFont*.fnt");
         pause = new ActionLabel("Press 'P' to return to the game\nPress 'ESCAPE' to quit.\n\nSelect the left icon to lower the volume\nor\nSelect the right icon to raise the volume", 130, 180, "fonts/smallerFont*.fnt");
         gameOver = new ActionLabel("Game Over\nPress 'ESCAPE' to return to the Title Screen.", 130, 180, "fonts/smallerFont*.fnt");
+        shadow = new ActionLabel("...", shadowx, shadowy, "fonts/gameFont1030*.fnt");
 
         // World coordinates == Screen coordinates at the beginning
         label.setPosition(20,400); 
@@ -355,11 +360,12 @@ public class VideoGameFinal extends ApplicationAdapter
     {
         Random rnd = new Random();
         item = rnd.nextInt(10);
-        itemx = rnd.nextInt(400);
-        itemy = rnd.nextInt(500);
+        itemx = (-700 + rnd.nextInt(1100));
+        itemy = (-700 + rnd.nextInt(1300));
     }
 
-    public void wrapCoordinates(float targetWidth, float targetHeight) {
+    public void wrapCoordinates(float targetWidth, float targetHeight) 
+    {
         if (imgX > targetWidth) 
         {
             imgX = -targetWidth;
@@ -448,9 +454,10 @@ public class VideoGameFinal extends ApplicationAdapter
 
         mover.play();
 
-        float dt = Gdx.graphics.getDeltaTime();
+        spawnTime += Gdx.graphics.getDeltaTime();
+        //spawnTime = dt + spawnTime; //+ time elasped;
 
-        obj.applyPhysics(dt);
+        obj.applyPhysics(spawnTime);
         if (obj.getSpeed() > 0) 
         {
 			obj.setRotation(obj.getMotionAngle()-90f);
@@ -463,8 +470,11 @@ public class VideoGameFinal extends ApplicationAdapter
             if (obj.overlaps(wall)) 
             {
 				bounce = obj.preventOverlap(wall);
-				obj.rebound(bounce.angle(),1f);
-				System.out.println("Bam!");
+                if (bounce != null) 
+                {
+					obj.rebound(bounce.angle(),0.25f);
+					System.out.println("Bam!");
+				}
 			}
         }
         
@@ -474,6 +484,11 @@ public class VideoGameFinal extends ApplicationAdapter
             {
 				bounce = obj.preventOverlap(b);
                 obj.rebound(bounce.angle(),1f);
+                if (bounce != null) 
+                {
+					obj.rebound(bounce.angle(),0.25f);
+					System.out.println("Bam Wall!");
+				}
             }
         }
 
@@ -485,15 +500,27 @@ public class VideoGameFinal extends ApplicationAdapter
 
         batch.draw(background,-1024,-768);
         batch.draw(img, imgX, imgY);
+        shadow.draw(batch, 1);
         label.draw(batch,1);
 
-        if (item == 5)
-        { 
+        if (obj.overlaps(shadow))
+        {
+            score = score - 1;
+            glassBreak.play();
+        }
+        else
+        {
+            glassBreak.stop();
+        }
+
+        if (spawnTime >= spawnDelay)
+        {
             batch.draw(glowStick, itemx, itemy);
-            if (imgX == itemx || imgY == itemy)
+            if (imgX == itemx && imgY == itemy)
             {
                 score = score + 1;
             }
+            spawnTime = 0;
         }
 
         //artist.draw(obj);
@@ -504,7 +531,7 @@ public class VideoGameFinal extends ApplicationAdapter
         
         handleInput();
 
-        // Draw glowstick icon
+        // Draw glowstick icon for score
         batch.draw(glowStick,130+(cam.position.x-WIDTH/2),370+(cam.position.y-HEIGHT/2));
         
         batch.end();
