@@ -15,6 +15,7 @@ public class ImageBasedScreenObject implements Collidable {
     protected float scaleY;
     protected boolean flipX;
     protected boolean flipY;
+    protected boolean visible;
     protected Polygon boundingPolygon;
     protected AnimationParameters animationParameters;
 
@@ -212,5 +213,18 @@ public class ImageBasedScreenObject implements Collidable {
     }
     public float getHeight() {
         return img.getHeight();
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+    public boolean isVisible() {
+        return (visible == true);
+    }
+    public void show() {
+        visible = true;
+    }
+    public void hide() {
+        visible = false;
     }
 }

@@ -74,7 +74,7 @@ public class VideoGameFinal extends ApplicationAdapter
         shadowx = (-700 + rnd.nextInt(1100));
         shadowy = (-700 + rnd.nextInt(1300));
 
-        spawnDelay = 1;
+        spawnDelay = 2;
         
         // Backgrounds and images
         img = new Texture("avatar.png");
