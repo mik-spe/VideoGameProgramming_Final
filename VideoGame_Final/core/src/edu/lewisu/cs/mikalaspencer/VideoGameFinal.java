@@ -5,7 +5,7 @@ import java.util.Random;
 
 /**
  * Mikala Spencer
- * 2020-11-20
+ * 2020-12-16
  * This program is a video game.
  */
 
@@ -38,11 +38,11 @@ public class VideoGameFinal extends ApplicationAdapter
 {
     SpriteBatch batch;
     EdgeHandler edgy;
-    Texture img, background, volDown, volUp, glowStick, teddyBear, miniMap, titleImg, pauseImg, gameOverImg;
+    Texture img, background, volDown, volUp, glowStick, teddyBear, miniMap, titleImg, pauseImg, gameOverImg, border;
     float imgX, imgY;
     float imgWidth, imgHeight;
     float WIDTH, HEIGHT, spawnTime, spawnDelay, spawn;
-    int score, goal, timeAux, itemx, itemy, item, shadowx, shadowy;
+    int score, timeAux, itemx, itemy, item, shadowx, shadowy, goalx, goaly;
     OrthographicCamera cam, screenCam;
     float WORLDWIDTH, WORLDHEIGHT, vol;
     LabelStyle labelStyle;
@@ -52,12 +52,12 @@ public class VideoGameFinal extends ApplicationAdapter
     Sound glassBreak;
     SoundLabel obstacle;
     MobileImageBasedScreenObject obj;
+    ImageBasedScreenObject objItem;
 	ImageBasedScreenObjectDrawer artist;
     ArrayList<ImageBasedScreenObject> walls;
-    
     // 0 - title screen, 1 - game screen, 2 - pause screen, 3 - game over screen
     int scene; 
-	ActionLabel title, author, instructions, pause, gameOver, shadow;
+	ActionLabel title, author, instructions, pause, gameOver, shadow, goal;
     ArrayList<Boundary> boundaries;
 
 	public void setupLabelStyle() 
@@ -73,6 +73,8 @@ public class VideoGameFinal extends ApplicationAdapter
         Random rnd = new Random();
         shadowx = (-700 + rnd.nextInt(1100));
         shadowy = (-700 + rnd.nextInt(1300));
+        goalx = (-700 + rnd.nextInt(1100));
+        goaly = (-700 + rnd.nextInt(1300));
 
         spawnDelay = 2;
         
@@ -83,49 +85,9 @@ public class VideoGameFinal extends ApplicationAdapter
         pauseImg = new Texture("pauseSky.jpg");
         gameOverImg = new Texture("pauseSky.jpg");
         miniMap = new Texture("nightLight_mapDetail.JPEG");
+        border = new Texture("verticalBoundary.png");
         score = 5;
 
-        goal = rnd.nextInt(10);
-        if (goal == 0)
-        {
-
-        }
-        else if (goal == 1)
-        {
-            
-        }
-        else if (goal == 2)
-        {
-            
-        }
-        else if (goal == 3)
-        {
-            
-        }
-        else if (goal == 4)
-        {
-            
-        }
-        else if (goal == 5)
-        {
-            
-        }
-        else if (goal == 6)
-        {
-            
-        }
-        else if (goal == 7)
-        {
-            
-        }
-        else if (goal == 8)
-        {
-            
-        }
-        else if (goal == 9)
-        {
-            
-        }
         // LATER: BOUNDARIES
         /** outlines
         * starting - (0, -725)
@@ -174,15 +136,17 @@ public class VideoGameFinal extends ApplicationAdapter
 
         // LATER: BOUNDARIES
         obj = new MobileImageBasedScreenObject(img,150,0,true);
-        obj.setMaxSpeed(100);
-		obj.setAcceleration(400);
-        obj.setDeceleration(100);
+        //obj.setMaxSpeed(100);
+		//obj.setAcceleration(400);
+        //obj.setDeceleration(100);
         
 		walls = new ArrayList<ImageBasedScreenObject>();
-		Texture wallTex = new Texture("verticalBoundary.png");
+		Texture wallTex = new Texture("bush.png");
 		walls.add(new ImageBasedScreenObject(wallTex,0,0,true));
 		walls.add(new ImageBasedScreenObject(wallTex,500,0,true));
-		artist = new ImageBasedScreenObjectDrawer(batch);
+        artist = new ImageBasedScreenObjectDrawer(batch);
+        
+        objItem = new ImageBasedScreenObject(glowStick,itemx,itemy,true);
 
         // Cameras: main game one and one for title & pause screens
         cam = new OrthographicCamera(WIDTH,HEIGHT);
@@ -206,7 +170,8 @@ public class VideoGameFinal extends ApplicationAdapter
         instructions = new ActionLabel("Make it to the goal before your glowsticks run out.\nFind glowsticks or teddy bears to increase your score.\nGet scared and your score will decrease.\nWhen your score reaches '0' you will faint and start over.\n\nPress 'ENTER' to start the game\nPress 'ESCAPE' to exit.", 70, 90, "fonts/smallerFont*.fnt");
         pause = new ActionLabel("Press 'P' to return to the game\nPress 'ESCAPE' to quit.\n\nSelect the left icon to lower the volume\nor\nSelect the right icon to raise the volume", 130, 180, "fonts/smallerFont*.fnt");
         gameOver = new ActionLabel("Game Over\nPress 'ESCAPE' to return to the Title Screen.", 130, 180, "fonts/smallerFont*.fnt");
-        shadow = new ActionLabel("...", shadowx, shadowy, "fonts/gameFont1030*.fnt");
+        shadow = new ActionLabel("boo", shadowx, shadowy, "fonts/gameFont1030*.fnt");
+        goal = new ActionLabel("...", goalx, goaly, "fonts/gameFont1030*.fnt");
 
         // World coordinates == Screen coordinates at the beginning
         label.setPosition(20,400); 
@@ -455,13 +420,6 @@ public class VideoGameFinal extends ApplicationAdapter
         mover.play();
 
         spawnTime += Gdx.graphics.getDeltaTime();
-        //spawnTime = dt + spawnTime; //+ time elasped;
-
-        obj.applyPhysics(spawnTime);
-        if (obj.getSpeed() > 0) 
-        {
-			obj.setRotation(obj.getMotionAngle()-90f);
-		}
 
         Vector2 bounce;
         
@@ -473,7 +431,7 @@ public class VideoGameFinal extends ApplicationAdapter
                 if (bounce != null) 
                 {
 					obj.rebound(bounce.angle(),0.25f);
-					System.out.println("Bam!");
+					System.out.println("Bam Wall!");
 				}
 			}
         }
@@ -487,13 +445,14 @@ public class VideoGameFinal extends ApplicationAdapter
                 if (bounce != null) 
                 {
 					obj.rebound(bounce.angle(),0.25f);
-					System.out.println("Bam Wall!");
+					System.out.println("Bam Boundary!");
 				}
             }
         }
 
-        // LATER - fix so the glowsticks randomly appear at a set interval
-        itemRan();
+        //itemRan();
+
+        obj.hide();
         
         //edgy.enforceEdges();
         batch.begin();
@@ -501,10 +460,14 @@ public class VideoGameFinal extends ApplicationAdapter
         batch.draw(background,-1024,-768);
         batch.draw(img, imgX, imgY);
         shadow.draw(batch, 1);
+        goal.draw(batch, 1);
         label.draw(batch,1);
+        
+        handleInput();
 
         if (obj.overlaps(shadow))
         {
+            // Decrease the score from being "scared" & play the sound
             score = score - 1;
             glassBreak.play();
         }
@@ -513,24 +476,33 @@ public class VideoGameFinal extends ApplicationAdapter
             glassBreak.stop();
         }
 
+        if (imgX == goalx && imgY == goaly)
+        {
+            // Go to the game over screen
+            scene = 3;
+        }
+
         if (spawnTime >= spawnDelay)
         {
+            itemRan();
+            obj.show();
+            
             batch.draw(glowStick, itemx, itemy);
+            //artist.draw(objItem);
+
             if (imgX == itemx && imgY == itemy)
             {
+                // Increase the score when item is found & play the sound
                 score = score + 1;
             }
             spawnTime = 0;
         }
 
-        //artist.draw(obj);
         for (ImageBasedScreenObject wall : walls) 
         {
 			artist.draw(wall);
         }
         
-        handleInput();
-
         // Draw glowstick icon for score
         batch.draw(glowStick,130+(cam.position.x-WIDTH/2),370+(cam.position.y-HEIGHT/2));
         
@@ -619,7 +591,7 @@ public class VideoGameFinal extends ApplicationAdapter
 
     public void renderGameOverScene()
     {
-        // Game Over screen when player faints
+        // Game Over screen when player faints & score reaches 0
 
         batch.begin();
             

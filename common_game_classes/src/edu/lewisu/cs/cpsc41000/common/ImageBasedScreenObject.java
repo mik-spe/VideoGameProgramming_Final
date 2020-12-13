@@ -112,8 +112,10 @@ public class ImageBasedScreenObject implements Collidable {
         // that calculation.
         if (!p1.getBoundingRectangle().overlaps(
         p2.getBoundingRectangle())) {
+            visible = true;
             return false;
         }
+        visible = false;
         return Intersector.overlapConvexPolygons(p1,p2);
     }
     public Texture getImg() {
