@@ -9,8 +9,6 @@ import java.util.Random;
  * This program is a video game.
  */
 
-// "LATER" keyword used for future things to work on.
-
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Buttons;
@@ -36,7 +34,7 @@ public class VideoGameFinal extends ApplicationAdapter
 {
     SpriteBatch batch;
     EdgeHandler edgy;
-    Texture img, background, volDown, volUp, glowStick, teddyBear, miniMap, titleImg, pauseImg, gameOverImg, border;
+    Texture img, background, volDown, volUp, glowStick, teddyBear, miniMap, titleImg, pauseImg, gameOverImg, gameOverFace;
     float imgX, imgY;
     float imgWidth, imgHeight;
     float WIDTH, HEIGHT, spawnTime, spawnDelay, spawn;
@@ -47,7 +45,7 @@ public class VideoGameFinal extends ApplicationAdapter
     Label label;
     CameraMove mover;
     Music creepyMusic;
-    Sound glassBreak;
+    Sound glassBreak, happyWow;
     SoundLabel obstacle;
     MobileImageBasedScreenObject obj;
     ImageBasedScreenObject objItem;
@@ -69,10 +67,13 @@ public class VideoGameFinal extends ApplicationAdapter
     public void create () 
     {
         batch = new SpriteBatch();
-        Random rnd = new Random();
-        goalx = (-700 + rnd.nextInt(1100));
-        goaly = (-700 + rnd.nextInt(1300));
 
+        // Locations for goal area to spawn
+        Random rnd = new Random();
+        goalx = (-700 + rnd.nextInt(1250));
+        goaly = (-750 + rnd.nextInt(880));
+
+        // How long for items to spawn
         spawnDelay = 2;
         
         // Backgrounds and images
@@ -82,7 +83,7 @@ public class VideoGameFinal extends ApplicationAdapter
         pauseImg = new Texture("pauseSky.jpg");
         gameOverImg = new Texture("pauseSky.jpg");
         miniMap = new Texture("nightLight_mapDetail.JPEG");
-        border = new Texture("verticalBoundary.png");
+        gameOverFace = new Texture("gameoverImg.png");
         score = 5;
 
         // Volume controls
@@ -151,7 +152,7 @@ public class VideoGameFinal extends ApplicationAdapter
         instructions = new ActionLabel("Make it to the goal before your glowsticks run out.\nFind glowsticks to increase your score.\nGet scared and your score will decrease.\nWhen your score reaches '0' you will faint and start over.\n\nUse the Arrow Keys to move.\nPress 'RIGHT SHIFT' to open the detailed mini map.\nPress 'SPACEBAR' to center the character on the screen.\nPress 'C' to uncenter the character.\n\nPress 'ENTER' to start the game\nPress 'ESCAPE' to exit.", 70, 50, "fonts/smallerFont*.fnt");
         pause = new ActionLabel("Press 'P' to return to the game.\n\nUse the Arrow keys to move.\nPress 'RIGHT SHIFT' to open the detailed mini map.\nPress 'SPACEBAR' to center the character on the screen.\nPress 'C' to uncenter the character.\nPress 'ESCAPE' to quit.\n\nSelect the left icon to lower the volume\nor\nSelect the right icon to raise the volume", 100, 120, "fonts/smallerFont*.fnt");
         gameOver = new ActionLabel("Game Over\n\nPress 'ESCAPE' to return\nto the Title Screen.", 100, 200, "fonts/gameFont1030*.fnt");
-        goal = new ActionLabel("...", goalx, goaly, "fonts/gameFont1030*.fnt");
+        goal = new ActionLabel("......", goalx, goaly, "fonts/blackFont*.fnt");
         winner = new ActionLabel("Congrats!\nYou have reached the light!\n\nPress 'ESCAPE' to return\nto the Title Screen.", 80, 180, "fonts/gameFont1030*.fnt");
 
         // Shadows that deduce score and trigger a sound (in black font to appear "hidden")
@@ -171,6 +172,7 @@ public class VideoGameFinal extends ApplicationAdapter
         // Audios
         creepyMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/creepy_atmosphere.mp3"));
         glassBreak = Gdx.audio.newSound(Gdx.files.internal("audio/glass.mp3"));
+        happyWow = Gdx.audio.newSound(Gdx.files.internal("audio/happyWow.mp3"));
 
         creepyMusic.setLooping(true);
         creepyMusic.setVolume(vol);
@@ -248,14 +250,18 @@ public class VideoGameFinal extends ApplicationAdapter
 
     public void itemRan()
     {
+        // Spawning range for the glowstick item
+
         Random rnd = new Random();
         item = rnd.nextInt(10);
-        itemx = (-700 + rnd.nextInt(1100));
-        itemy = (-700 + rnd.nextInt(1300));
+        itemx = (-700 + rnd.nextInt(1250));
+        itemy = (-750 + rnd.nextInt(880));
     }
 
     public int ranShadowx()
     {
+        // Spawning range for the shadow obstacles
+
         Random rnd = new Random();
         shadowx = (-700 + rnd.nextInt(1100));
         return shadowx;
@@ -442,6 +448,9 @@ public class VideoGameFinal extends ApplicationAdapter
             {
                 // Increase the score when item is found & play the sound
                 score = score + 1;
+
+                // Play good sound when a glowstick is gained
+                happyWow.play();
             }
             spawnTime = 0;
         }
@@ -551,6 +560,7 @@ public class VideoGameFinal extends ApplicationAdapter
             
         batch.draw(gameOverImg,0,0);
         gameOver.draw(batch,1f);
+        batch.draw(gameOverFace,150,-50);
 
         batch.end();
 
