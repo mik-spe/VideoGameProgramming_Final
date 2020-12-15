@@ -88,26 +88,6 @@ public class VideoGameFinal extends ApplicationAdapter
         border = new Texture("verticalBoundary.png");
         score = 5;
 
-        // LATER: BOUNDARIES
-        /** outlines
-        * starting - (0, -725)
-        * each block: ~290 x 290
-        * left boundary - (-705,-725) to (-705, -145)
-        * right boundary - (415, -725) to (415, -145)
-        * 2nd row boundary left - (-165, -145) to (-165, 415)
-        * 2nd row boundary right - (415, -145) to (415, 415)
-        * top room - (-165, 635) to (125, 635)
-        */
-        boundaries = new ArrayList<Boundary>();
-        // Main block of bottom 2 rows of rooms
-		boundaries.add(new Boundary(-705, -725, -705, -145));
-        boundaries.add(new Boundary(415, -725, 415, -145));
-        // 2nd row of 2 rooms
-        boundaries.add(new Boundary(-165, -145, -165, 415));
-        boundaries.add(new Boundary(415, -145, 415, 415));
-        // Top room
-        boundaries.add(new Boundary(-165, 635, 125, 635));
-
         // Volume controls
 		volDown = new Texture("volDown.png");
 		volUp = new Texture("volUp.png");
@@ -131,19 +111,23 @@ public class VideoGameFinal extends ApplicationAdapter
         imgWidth = img.getWidth();
         imgHeight = img.getHeight();
 
-        // LATER: BOUNDARIES
         obj = new MobileImageBasedScreenObject(img,0,-175,true);
         obj.setMaxSpeed(300);
 		obj.setAcceleration(400);
         obj.setDeceleration(100);
         
 		walls = new ArrayList<ImageBasedScreenObject>();
-		Texture wallTex = new Texture("verticalBoundary.png");
-		walls.add(new ImageBasedScreenObject(wallTex,-705,-800,true));
-		walls.add(new ImageBasedScreenObject(wallTex,570,-800,true));
+        Texture wallVertical = new Texture("verticalBoundary.png");
+        Texture wallHorizontal = new Texture("horizontalBoundary.png");
+		walls.add(new ImageBasedScreenObject(wallVertical,-705,-800,true));
+        walls.add(new ImageBasedScreenObject(wallVertical,570,-800,true));
+        walls.add(new ImageBasedScreenObject(wallVertical,570,-400,true));
+        walls.add(new ImageBasedScreenObject(wallVertical,-70,-125,true));
+        walls.add(new ImageBasedScreenObject(wallHorizontal,-705,-125,true));
+        walls.add(new ImageBasedScreenObject(wallHorizontal,50,450,true));
         artist = new ImageBasedScreenObjectDrawer(batch);
 
-        objItem = new ImageBasedScreenObject(glowStick,itemx,itemy,true);
+        //objItem = new ImageBasedScreenObject(glowStick,itemx,itemy,true);
 
         // Cameras: main game one and one for title & pause screens
         cam = new OrthographicCamera(WIDTH,HEIGHT);
@@ -380,29 +364,13 @@ public class VideoGameFinal extends ApplicationAdapter
 				bounce = obj.preventOverlap(wall);
                 if (bounce != null) 
                 {
-					obj.rebound(bounce.angle(),0.25f);
-					System.out.println("Bam Wall!");
+					obj.rebound(bounce.angle(),0.1f);
+					System.out.println("Watch Out!");
 				}
 			}
         }
-        
-        for (Boundary b : boundaries) 
-        {
-            if (obj.overlaps(b)) 
-            {
-				bounce = obj.preventOverlap(b);
-                obj.rebound(bounce.angle(),1f);
-                if (bounce != null) 
-                {
-					obj.rebound(bounce.angle(),0.25f);
-					System.out.println("Bam Boundary!");
-				}
-            }
-        }
 
-        //itemRan();
-
-        objItem.hide();
+        itemRan();
 
         handleInput();
 
@@ -413,11 +381,13 @@ public class VideoGameFinal extends ApplicationAdapter
 		}
 
         edgy.enforceEdges();
-        
+
+        objItem = new ImageBasedScreenObject(glowStick,itemx,itemy,true);
+        objItem.hide();
+
         batch.begin();
 
         batch.draw(background,-1024,-768);
-        //batch.draw(img, imgX, imgY);
         artist.draw(obj);
         shadow.draw(batch, 1);
         goal.draw(batch, 1);
