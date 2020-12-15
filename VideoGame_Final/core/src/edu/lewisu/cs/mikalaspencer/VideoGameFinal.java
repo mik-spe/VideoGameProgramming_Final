@@ -108,9 +108,6 @@ public class VideoGameFinal extends ApplicationAdapter
         // Top room
         boundaries.add(new Boundary(-165, 635, 125, 635));
 
-        // Edges
-        edgy = new EdgeHandler(obj,cam,batch,-900,1200,-900,1200,20,EdgeHandler.EdgeConstants.PAN,EdgeHandler.EdgeConstants.PAN);
-
         // Volume controls
 		volDown = new Texture("volDown.png");
 		volUp = new Texture("volUp.png");
@@ -157,6 +154,10 @@ public class VideoGameFinal extends ApplicationAdapter
         screenCam.update();
         batch.setProjectionMatrix(cam.combined);
         
+        // Edges
+        edgy = new EdgeHandler(obj,cam,batch,-900,1200,-900,1200,20,EdgeHandler.EdgeConstants.PAN,EdgeHandler.EdgeConstants.PAN);
+
+
         // Set up label
         setupLabelStyle();
 
