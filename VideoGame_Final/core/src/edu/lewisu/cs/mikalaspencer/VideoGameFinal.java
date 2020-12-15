@@ -149,8 +149,8 @@ public class VideoGameFinal extends ApplicationAdapter
         label = new Label("Score", labelStyle);
         title = new ActionLabel("Night Light", 220, 400, "fonts/gameFont1030*.fnt");
         author = new ActionLabel("by Mikala Spencer", 210, 360,"fonts/smallerFont*.fnt");
-        instructions = new ActionLabel("Make it to the goal before your glowsticks run out.\nFind glowsticks to increase your score.\nGet scared and your score will decrease.\nWhen your score reaches '0' you will faint and start over.\n\nUse the Arrow Keys to move.\nPress 'RIGHT SHIFT' to open the detailed mini map.\nPress 'SPACEBAR' to center the character on the screen.\nPress 'C' to uncenter the character.\n\nPress 'ENTER' to start the game\nPress 'ESCAPE' to exit.", 70, 50, "fonts/smallerFont*.fnt");
-        pause = new ActionLabel("Press 'P' to return to the game.\n\nUse the Arrow keys to move.\nPress 'RIGHT SHIFT' to open the detailed mini map.\nPress 'SPACEBAR' to center the character on the screen.\nPress 'C' to uncenter the character.\nPress 'ESCAPE' to quit.\n\nSelect the left icon to lower the volume\nor\nSelect the right icon to raise the volume", 100, 120, "fonts/smallerFont*.fnt");
+        instructions = new ActionLabel("Make it to the goal before your glowsticks run out.\nFind glowsticks to increase your score.\nGet scared and your score will decrease.\nWhen your score reaches '0' you will faint and start over.\n\nUse the Arrow Keys to move.\nPress 'RIGHT SHIFT' to open the detailed mini map.\nPress 'SPACEBAR' to have no text on the screen.\nPress 'C' to bring back the text on screen.\nPress 'LEFT SHIFT' to flip the screen upside down.\n\nPress 'ENTER' to start the game\nPress 'ESCAPE' to exit.", 70, 30, "fonts/smallerFont*.fnt");
+        pause = new ActionLabel("Press 'P' to return to the game.\n\nUse the Arrow keys to move.\nPress 'RIGHT SHIFT' to open the detailed mini map.\nPress 'SPACEBAR' to have no text on the screen.\nPress 'C' to bring back the text on screen.\nPress 'LEFT SHIFT' to flip the screen upside down.\nPress 'ESCAPE' to quit.\n\nSelect the left icon to lower the volume\nor\nSelect the right icon to raise the volume", 100, 100, "fonts/smallerFont*.fnt");
         gameOver = new ActionLabel("Game Over\n\nPress 'ESCAPE' to return\nto the Title Screen.", 100, 200, "fonts/gameFont1030*.fnt");
         goal = new ActionLabel("......", goalx, goaly, "fonts/blackFont*.fnt");
         winner = new ActionLabel("Congrats!\nYou have reached the light!\n\nPress 'ESCAPE' to return\nto the Title Screen.", 80, 180, "fonts/gameFont1030*.fnt");
@@ -210,7 +210,7 @@ public class VideoGameFinal extends ApplicationAdapter
 		}
         if (Gdx.input.isKeyJustPressed(Keys.SPACE))
         {
-            // Centered on center of screen
+            // Makes text on screen disappear
             lockCoordinatesJail(WIDTH, HEIGHT);
         }
         mover.play();
@@ -301,11 +301,9 @@ public class VideoGameFinal extends ApplicationAdapter
 
     public void lockCoordinatesJail(float targetWidth, float targetHeight)
     {
-        // When pressed SPACEBAR, lock the character in center of screen
+        // When pressed SPACEBAR, make on screen text disappear
         WIDTH = imgWidth * 1.5f;
         HEIGHT = imgHeight * 1.5f;
-
-        // LATER: FIX SO SCORE AND INSTRUCTIONS ARE DISPLAYED WHEN IN CENTER MODE
     }
 
     public void lockCoordinatesJail() 
