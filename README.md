@@ -4,7 +4,9 @@
 # Video Game Programming
 # Final
 
-# This program is a game called "Night Light".
+# This program is a game called "Night Light" where the player has to maintain & get glowsticks
+# as they find their way to the "goal" (room of light) without their glowstick count reaching 0 from 
+# getting scared from shadow obstacles.
 
 
 # How to Play:
@@ -16,6 +18,8 @@
 #       - Select the right volume icon to increase the volume.
 #   - Press "P" on the pause screen to return to the game.
 #   - Press "ESCAPE" on the pause screen to quit the game and return to the title screen.
+#   - Press "ESCAPE" on the game over screen to go back to the title screen.
+#   - Press "ESCAPE" on the winner screen to go back to the title screen.
 #   - Press "ESCAPE" on the title screen to close the program.
 
 # Use the arrow keys to move:
@@ -24,7 +28,7 @@
 #   - LEFT to move the character left.
 #   - RIGHT to move the character right.
 
-# Press the SPACEBAR to center the character on the screen to move.
-#   - Press the "C" key to uncenter the character.
+# Press the SPACEBAR to have the text on screen disappear.
+#   - Press the "C" key to have the text reappear on screen.
 # Press the LEFT SHIFT key to flip the screen upside down.
 # Press the RIGHT SHIFT key to pull up the mini map while playing.
