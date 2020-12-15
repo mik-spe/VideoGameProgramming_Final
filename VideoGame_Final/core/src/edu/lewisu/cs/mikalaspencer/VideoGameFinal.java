@@ -22,11 +22,9 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
-import com.badlogic.gdx.utils.Timer;
 
 import edu.lewisu.cs.cpsc41000.common.cameraeffects.*;
 import edu.lewisu.cs.cpsc41000.common.labels.ActionLabel;
@@ -55,9 +53,10 @@ public class VideoGameFinal extends ApplicationAdapter
     ImageBasedScreenObject objItem;
 	ImageBasedScreenObjectDrawer artist;
     ArrayList<ImageBasedScreenObject> walls;
-    // 0 - title screen, 1 - game screen, 2 - pause screen, 3 - game over screen
+    ArrayList<ActionLabel> shadows;
+    // 0 - title screen, 1 - game screen, 2 - pause screen, 3 - game over screen, 4 - winning screen
     int scene; 
-	ActionLabel title, author, instructions, pause, gameOver, shadow, goal, winner;
+	ActionLabel title, author, instructions, pause, gameOver, shadow, shadow2, shadow3, shadow4, shadow5, goal, winner;
     ArrayList<Boundary> boundaries;
 
 	public void setupLabelStyle() 
@@ -71,8 +70,6 @@ public class VideoGameFinal extends ApplicationAdapter
     {
         batch = new SpriteBatch();
         Random rnd = new Random();
-        shadowx = (-700 + rnd.nextInt(1100));
-        shadowy = (-700 + rnd.nextInt(1300));
         goalx = (-700 + rnd.nextInt(1100));
         goaly = (-700 + rnd.nextInt(1300));
 
@@ -111,7 +108,8 @@ public class VideoGameFinal extends ApplicationAdapter
         imgWidth = img.getWidth();
         imgHeight = img.getHeight();
 
-        obj = new MobileImageBasedScreenObject(img,0,-175,true);
+        // Start the character in the bottom room, second from the right
+        obj = new MobileImageBasedScreenObject(img,0,-730,true);
         obj.setMaxSpeed(300);
 		obj.setAcceleration(400);
         obj.setDeceleration(100);
@@ -121,13 +119,12 @@ public class VideoGameFinal extends ApplicationAdapter
         Texture wallHorizontal = new Texture("horizontalBoundary.png");
 		walls.add(new ImageBasedScreenObject(wallVertical,-705,-800,true));
         walls.add(new ImageBasedScreenObject(wallVertical,570,-800,true));
-        walls.add(new ImageBasedScreenObject(wallVertical,570,-400,true));
+        walls.add(new ImageBasedScreenObject(wallVertical,570,-100,true));
         walls.add(new ImageBasedScreenObject(wallVertical,-70,-125,true));
         walls.add(new ImageBasedScreenObject(wallHorizontal,-705,-125,true));
         walls.add(new ImageBasedScreenObject(wallHorizontal,50,450,true));
+        walls.add(new ImageBasedScreenObject(wallHorizontal,100,450,true));
         artist = new ImageBasedScreenObjectDrawer(batch);
-
-        //objItem = new ImageBasedScreenObject(glowStick,itemx,itemy,true);
 
         // Cameras: main game one and one for title & pause screens
         cam = new OrthographicCamera(WIDTH,HEIGHT);
@@ -153,10 +150,17 @@ public class VideoGameFinal extends ApplicationAdapter
         author = new ActionLabel("by Mikala Spencer", 210, 360,"fonts/smallerFont*.fnt");
         instructions = new ActionLabel("Make it to the goal before your glowsticks run out.\nFind glowsticks to increase your score.\nGet scared and your score will decrease.\nWhen your score reaches '0' you will faint and start over.\n\nUse the Arrow Keys to move.\nPress 'RIGHT SHIFT' to open the detailed mini map.\nPress 'SPACEBAR' to center the character on the screen.\nPress 'C' to uncenter the character.\n\nPress 'ENTER' to start the game\nPress 'ESCAPE' to exit.", 70, 50, "fonts/smallerFont*.fnt");
         pause = new ActionLabel("Press 'P' to return to the game.\n\nUse the Arrow keys to move.\nPress 'RIGHT SHIFT' to open the detailed mini map.\nPress 'SPACEBAR' to center the character on the screen.\nPress 'C' to uncenter the character.\nPress 'ESCAPE' to quit.\n\nSelect the left icon to lower the volume\nor\nSelect the right icon to raise the volume", 100, 120, "fonts/smallerFont*.fnt");
-        gameOver = new ActionLabel("Game Over\nPress 'ESCAPE' to return to the Title Screen.", 130, 180, "fonts/smallerFont*.fnt");
-        shadow = new ActionLabel("boo", shadowx, shadowy, "fonts/blackFont*.fnt");
+        gameOver = new ActionLabel("Game Over\n\nPress 'ESCAPE' to return\nto the Title Screen.", 100, 200, "fonts/gameFont1030*.fnt");
         goal = new ActionLabel("...", goalx, goaly, "fonts/gameFont1030*.fnt");
         winner = new ActionLabel("Congrats!\nYou have reached the light!\n\nPress 'ESCAPE' to return\nto the Title Screen.", 80, 180, "fonts/gameFont1030*.fnt");
+
+        // Shadows that deduce score and trigger a sound (in black font to appear "hidden")
+        shadows = new ArrayList<ActionLabel>();
+        shadows.add(new ActionLabel("...", ranShadowx(), ranShadowy(), "fonts/blackFont*.fnt"));
+        shadows.add(new ActionLabel("...", ranShadowx(), ranShadowy(), "fonts/blackFont*.fnt"));
+        shadows.add(new ActionLabel("...", ranShadowx(), ranShadowy(), "fonts/blackFont*.fnt"));
+        shadows.add(new ActionLabel("...", ranShadowx(), ranShadowy(), "fonts/blackFont*.fnt"));
+        shadows.add(new ActionLabel("...", ranShadowx(), ranShadowy(), "fonts/blackFont*.fnt"));
 
         // World coordinates == Screen coordinates at the beginning
         label.setPosition(20,400); 
@@ -166,7 +170,6 @@ public class VideoGameFinal extends ApplicationAdapter
 
         // Audios
         creepyMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/creepy_atmosphere.mp3"));
-        // LATER: USE FOR OBSTACLES BEING HIT
         glassBreak = Gdx.audio.newSound(Gdx.files.internal("audio/glass.mp3"));
 
         creepyMusic.setLooping(true);
@@ -174,32 +177,22 @@ public class VideoGameFinal extends ApplicationAdapter
         creepyMusic.play();
     }
 
-    // LATER: ADD RANDOMIZED ITEMS & OBSTACLES & GOAL
-
     public void handleInput() 
     {
         if (Gdx.input.isKeyPressed(Keys.LEFT)) 
         {
-            //imgX-=10;
-
             obj.accelerateAtAngle(180);
         }
         if (Gdx.input.isKeyPressed(Keys.RIGHT)) 
         {
-            //imgX+=10;
-
             obj.accelerateAtAngle(0);
         }
         if (Gdx.input.isKeyPressed(Keys.UP)) 
         {
-            //imgY+=10;
-
             obj.accelerateAtAngle(90);
         }
         if (Gdx.input.isKeyPressed(Keys.DOWN)) 
         {
-            //imgY-=10; 
-
             obj.accelerateAtAngle(270);
         }
         if (Gdx.input.isKeyJustPressed(Keys.SHIFT_LEFT))
@@ -259,6 +252,19 @@ public class VideoGameFinal extends ApplicationAdapter
         item = rnd.nextInt(10);
         itemx = (-700 + rnd.nextInt(1100));
         itemy = (-700 + rnd.nextInt(1300));
+    }
+
+    public int ranShadowx()
+    {
+        Random rnd = new Random();
+        shadowx = (-700 + rnd.nextInt(1100));
+        return shadowx;
+    }
+    public int ranShadowy()
+    {
+        Random rnd = new Random();
+        shadowy = (-700 + rnd.nextInt(1300));
+        return shadowy;
     }
 
     public void wrapCoordinates(float targetWidth, float targetHeight) 
@@ -345,10 +351,6 @@ public class VideoGameFinal extends ApplicationAdapter
             scene = 3;
         }
 
-        label.setText("Press 'P' to pause.\nScore: " + score);
-        // Update the label position to ensure that it stays at the same place on the screen as the camera moves.
-        label.setPosition(20+(cam.position.x-WIDTH/2),415+cam.position.y-HEIGHT/2);
-
         mover.play();
 
         float dt = Gdx.graphics.getDeltaTime();
@@ -382,6 +384,7 @@ public class VideoGameFinal extends ApplicationAdapter
 
         edgy.enforceEdges();
 
+        // Glowstick item that will randomly appear and disappear
         objItem = new ImageBasedScreenObject(glowStick,itemx,itemy,true);
         objItem.hide();
 
@@ -389,21 +392,34 @@ public class VideoGameFinal extends ApplicationAdapter
 
         batch.draw(background,-1024,-768);
         artist.draw(obj);
-        shadow.draw(batch, 1);
+
+        // Randomly place the goal
         goal.draw(batch, 1);
+
         label.draw(batch,1);
 
-        if (obj.overlaps(shadow))
+        label.setText("Press 'P' to pause.\nScore: " + score);
+        // Update the label position to ensure that it stays at the same place on the screen as the camera moves.
+        label.setPosition(20+(cam.position.x-WIDTH/2),415+cam.position.y-HEIGHT/2);
+
+        // Randomly place that 5 shadows
+        for (ActionLabel shadow : shadows)
         {
-            // Decrease the score from being "scared" & play the sound
-            score = score - 1;
-            glassBreak.play();
-            bounce = obj.preventOverlap(obj);
-            obj.rebound(bounce.angle(),1f);
-        }
-        else
-        {
-            glassBreak.stop();
+            shadow.draw(batch, 1);
+
+            if (obj.overlaps(shadow))
+            {
+                // Decrease the score from being "scared" & play the sound
+                score = score - 1;
+                System.out.println("Boo!");
+
+                // Play scary sound
+                glassBreak.play();
+
+                // Bounce away from obstacle
+                bounce = obj.preventOverlap(obj);
+                obj.rebound(bounce.angle(),0.3f);
+            }
         }
 
         if (obj.overlaps(goal))
@@ -412,8 +428,10 @@ public class VideoGameFinal extends ApplicationAdapter
             scene = 4;
         }
 
+        // If it is time for an item to randomly spawn...
         if (spawnTime >= spawnDelay)
         {
+            // Get the new coordinates and set the object to visble
             itemRan();
             objItem.show();
             
