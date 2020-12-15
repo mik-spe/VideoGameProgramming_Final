@@ -57,7 +57,7 @@ public class VideoGameFinal extends ApplicationAdapter
     ArrayList<ImageBasedScreenObject> walls;
     // 0 - title screen, 1 - game screen, 2 - pause screen, 3 - game over screen
     int scene; 
-	ActionLabel title, author, instructions, pause, gameOver, shadow, goal;
+	ActionLabel title, author, instructions, pause, gameOver, shadow, goal, winner;
     ArrayList<Boundary> boundaries;
 
 	public void setupLabelStyle() 
@@ -133,14 +133,14 @@ public class VideoGameFinal extends ApplicationAdapter
 
         // LATER: BOUNDARIES
         obj = new MobileImageBasedScreenObject(img,0,-175,true);
-        obj.setMaxSpeed(100);
+        obj.setMaxSpeed(300);
 		obj.setAcceleration(400);
         obj.setDeceleration(100);
         
 		walls = new ArrayList<ImageBasedScreenObject>();
-		Texture wallTex = new Texture("bush.png");
-		walls.add(new ImageBasedScreenObject(wallTex,0,0,true));
-		walls.add(new ImageBasedScreenObject(wallTex,500,0,true));
+		Texture wallTex = new Texture("verticalBoundary.png");
+		walls.add(new ImageBasedScreenObject(wallTex,-705,-800,true));
+		walls.add(new ImageBasedScreenObject(wallTex,570,-800,true));
         artist = new ImageBasedScreenObjectDrawer(batch);
 
         objItem = new ImageBasedScreenObject(glowStick,itemx,itemy,true);
@@ -157,7 +157,6 @@ public class VideoGameFinal extends ApplicationAdapter
         // Edges
         edgy = new EdgeHandler(obj,cam,batch,-900,1200,-900,1200,20,EdgeHandler.EdgeConstants.PAN,EdgeHandler.EdgeConstants.PAN);
 
-
         // Set up label
         setupLabelStyle();
 
@@ -167,12 +166,13 @@ public class VideoGameFinal extends ApplicationAdapter
         // Create labels
         label = new Label("Score", labelStyle);
         title = new ActionLabel("Night Light", 220, 400, "fonts/gameFont1030*.fnt");
-        author = new ActionLabel("by Mikala Spencer", 210, 350,"fonts/smallerFont*.fnt");
-        instructions = new ActionLabel("Make it to the goal before your glowsticks run out.\nFind glowsticks or teddy bears to increase your score.\nGet scared and your score will decrease.\nWhen your score reaches '0' you will faint and start over.\n\nPress 'ENTER' to start the game\nPress 'ESCAPE' to exit.", 70, 90, "fonts/smallerFont*.fnt");
-        pause = new ActionLabel("Press 'P' to return to the game\nPress 'ESCAPE' to quit.\n\nSelect the left icon to lower the volume\nor\nSelect the right icon to raise the volume", 130, 180, "fonts/smallerFont*.fnt");
+        author = new ActionLabel("by Mikala Spencer", 210, 360,"fonts/smallerFont*.fnt");
+        instructions = new ActionLabel("Make it to the goal before your glowsticks run out.\nFind glowsticks to increase your score.\nGet scared and your score will decrease.\nWhen your score reaches '0' you will faint and start over.\n\nUse the Arrow Keys to move.\nPress 'RIGHT SHIFT' to open the detailed mini map.\nPress 'SPACEBAR' to center the character on the screen.\nPress 'C' to uncenter the character.\n\nPress 'ENTER' to start the game\nPress 'ESCAPE' to exit.", 70, 50, "fonts/smallerFont*.fnt");
+        pause = new ActionLabel("Press 'P' to return to the game.\n\nUse the Arrow keys to move.\nPress 'RIGHT SHIFT' to open the detailed mini map.\nPress 'SPACEBAR' to center the character on the screen.\nPress 'C' to uncenter the character.\nPress 'ESCAPE' to quit.\n\nSelect the left icon to lower the volume\nor\nSelect the right icon to raise the volume", 100, 120, "fonts/smallerFont*.fnt");
         gameOver = new ActionLabel("Game Over\nPress 'ESCAPE' to return to the Title Screen.", 130, 180, "fonts/smallerFont*.fnt");
-        shadow = new ActionLabel("boo", shadowx, shadowy, "fonts/gameFont1030*.fnt");
+        shadow = new ActionLabel("boo", shadowx, shadowy, "fonts/blackFont*.fnt");
         goal = new ActionLabel("...", goalx, goaly, "fonts/gameFont1030*.fnt");
+        winner = new ActionLabel("Congrats!\nYou have reached the light!\n\nPress 'ESCAPE' to return\nto the Title Screen.", 80, 180, "fonts/gameFont1030*.fnt");
 
         // World coordinates == Screen coordinates at the beginning
         label.setPosition(20,400); 
@@ -229,11 +229,6 @@ public class VideoGameFinal extends ApplicationAdapter
             WIDTH = Gdx.graphics.getWidth();
             HEIGHT = Gdx.graphics.getHeight();
 		}
-        if (Gdx.input.isKeyPressed(Keys.SHIFT_RIGHT))
-        {
-            // Displays a mini map in the upper righthand corner of the screen
-            batch.draw(miniMap,325+(cam.position.x-WIDTH/2),275+(cam.position.y-HEIGHT/2));
-        }
         if (Gdx.input.isKeyJustPressed(Keys.SPACE))
         {
             // Centered on center of screen
@@ -272,54 +267,6 @@ public class VideoGameFinal extends ApplicationAdapter
                 batch.setProjectionMatrix(cam.combined);
             }
         } 
-
-        if (screenPos.x < border) 
-        {   
-            if (imgX < -WORLDWIDTH + border) 
-            {  
-                // Out of real estate in negative x direction
-                wrapCoordinates(WORLDWIDTH, WORLDHEIGHT);
-            } 
-            else 
-            {   
-                // Pan the camera
-                cam.position.x = cam.position.x - (border - screenPos.x);
-                cam.update();
-                batch.setProjectionMatrix(cam.combined);
-            }
-        }
-
-        if (screenPos.y > HEIGHT - imgHeight - border) 
-        {   // Go off viewport vertically
-            if (imgY + imgHeight > WORLDHEIGHT - border) 
-            {  
-                // Out of real estate in positive y direction
-                lockCoordinates(WORLDWIDTH, WORLDHEIGHT);
-            }
-            else 
-            {   
-                // Keep panning
-                cam.position.y = cam.position.y + screenPos.y - HEIGHT + imgHeight + border;
-                cam.update();
-                batch.setProjectionMatrix(cam.combined);
-            }
-        }
-
-        if (screenPos.y < border) 
-        {
-            if (imgY < -WORLDHEIGHT + border) 
-            {  
-                // Out of real estate in neagtive y direction
-                lockCoordinates(WORLDWIDTH, WORLDHEIGHT);
-            }
-            else 
-            {  
-                // Keep panning
-                cam.position.y = cam.position.y - (border - screenPos.y);
-                cam.update();
-                batch.setProjectionMatrix(cam.combined);
-            }
-        }
     }
 
     public void itemRan()
@@ -455,7 +402,7 @@ public class VideoGameFinal extends ApplicationAdapter
 
         //itemRan();
 
-        //obj.show();
+        objItem.hide();
 
         handleInput();
 
@@ -465,7 +412,6 @@ public class VideoGameFinal extends ApplicationAdapter
 			obj.setRotation(obj.getMotionAngle()-90f);
 		}
 
-        // ERROR in pancoordiantes in edgehandlet, not sure why
         edgy.enforceEdges();
         
         batch.begin();
@@ -482,27 +428,29 @@ public class VideoGameFinal extends ApplicationAdapter
             // Decrease the score from being "scared" & play the sound
             score = score - 1;
             glassBreak.play();
+            bounce = obj.preventOverlap(obj);
+            obj.rebound(bounce.angle(),1f);
         }
         else
         {
             glassBreak.stop();
         }
 
-        if (imgX == goalx && imgY == goaly)
+        if (obj.overlaps(goal))
         {
-            // Go to the game over screen
-            scene = 3;
+            // Go to the winner screen
+            scene = 4;
         }
 
         if (spawnTime >= spawnDelay)
         {
             itemRan();
-            obj.show();
+            objItem.show();
             
-            batch.draw(glowStick, itemx, itemy);
-            //artist.draw(objItem);
+            //batch.draw(glowStick, itemx, itemy);
+            artist.draw(objItem);
 
-            if (imgX == itemx && imgY == itemy)
+            if (obj.overlaps(objItem))
             {
                 // Increase the score when item is found & play the sound
                 score = score + 1;
@@ -518,6 +466,12 @@ public class VideoGameFinal extends ApplicationAdapter
         // Draw glowstick icon for score
         batch.draw(glowStick,130+(cam.position.x-WIDTH/2),370+(cam.position.y-HEIGHT/2));
         
+        if (Gdx.input.isKeyPressed(Keys.SHIFT_RIGHT))
+        {
+            // Displays a mini map in the upper righthand corner of the screen
+            batch.draw(miniMap,325+(cam.position.x-WIDTH/2),275+(cam.position.y-HEIGHT/2));
+        }
+
         batch.end();
     }
 
@@ -611,6 +565,31 @@ public class VideoGameFinal extends ApplicationAdapter
         gameOver.draw(batch,1f);
 
         batch.end();
+
+        if (Gdx.input.isKeyJustPressed(Keys.ESCAPE))
+		{
+			// Go to title screen
+            scene = 0;
+        }
+    }
+
+    public void renderWinnerScene()
+    {
+        // Winner screen if they find the goal
+
+        batch.begin();
+            
+        batch.draw(gameOverImg,0,0);
+        batch.draw(teddyBear,150,-50);
+        winner.draw(batch,1f);
+
+        batch.end();
+
+        if (Gdx.input.isKeyJustPressed(Keys.ESCAPE))
+		{
+			// Go to title screen
+            scene = 0;
+        }
     }
 
     @Override
@@ -635,6 +614,11 @@ public class VideoGameFinal extends ApplicationAdapter
         {
             batch.setProjectionMatrix(screenCam.combined);
             renderGameOverScene();
+        }
+        else if (scene == 4)
+        {
+            batch.setProjectionMatrix(screenCam.combined);
+            renderWinnerScene();
         }
     }
     
