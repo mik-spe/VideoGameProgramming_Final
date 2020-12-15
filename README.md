@@ -32,3 +32,21 @@
 #   - Press the "C" key to have the text reappear on screen.
 # Press the LEFT SHIFT key to flip the screen upside down.
 # Press the RIGHT SHIFT key to pull up the mini map while playing.
+
+
+# Range of Techniques Covered:
+#   - Camera Effects
+#   - Collison Detection
+#   - Rebounding
+#   - Physics
+#   - Music
+#   - Sound Effects
+#   - On-screen Labels
+#   - Edge Handling
+
+
+# Future Improvements:
+#   - Better moving animation
+#   - Different types of items with different uses
+#   - Bigger map
+#   - Moving enemies
