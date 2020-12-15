@@ -109,7 +109,7 @@ public class VideoGameFinal extends ApplicationAdapter
         boundaries.add(new Boundary(-165, 635, 125, 635));
 
         // Edges
-        //edgy = new EdgeHandler(obj,cam,batch,-300,1200,-300,1200,20,EdgeHandler.EdgeConstants.PAN,EdgeHandler.EdgeConstants.PAN);
+        edgy = new EdgeHandler(obj,cam,batch,-900,1200,-900,1200,20,EdgeHandler.EdgeConstants.PAN,EdgeHandler.EdgeConstants.PAN);
 
         // Volume controls
 		volDown = new Texture("volDown.png");
@@ -135,17 +135,17 @@ public class VideoGameFinal extends ApplicationAdapter
         imgHeight = img.getHeight();
 
         // LATER: BOUNDARIES
-        obj = new MobileImageBasedScreenObject(img,150,0,true);
-        //obj.setMaxSpeed(100);
-		//obj.setAcceleration(400);
-        //obj.setDeceleration(100);
+        obj = new MobileImageBasedScreenObject(img,0,-175,true);
+        obj.setMaxSpeed(100);
+		obj.setAcceleration(400);
+        obj.setDeceleration(100);
         
 		walls = new ArrayList<ImageBasedScreenObject>();
 		Texture wallTex = new Texture("bush.png");
 		walls.add(new ImageBasedScreenObject(wallTex,0,0,true));
 		walls.add(new ImageBasedScreenObject(wallTex,500,0,true));
         artist = new ImageBasedScreenObjectDrawer(batch);
-        
+
         objItem = new ImageBasedScreenObject(glowStick,itemx,itemy,true);
 
         // Cameras: main game one and one for title & pause screens
@@ -195,25 +195,25 @@ public class VideoGameFinal extends ApplicationAdapter
     {
         if (Gdx.input.isKeyPressed(Keys.LEFT)) 
         {
-            imgX-=10;
+            //imgX-=10;
 
             obj.accelerateAtAngle(180);
         }
         if (Gdx.input.isKeyPressed(Keys.RIGHT)) 
         {
-            imgX+=10;
+            //imgX+=10;
 
             obj.accelerateAtAngle(0);
         }
         if (Gdx.input.isKeyPressed(Keys.UP)) 
         {
-            imgY+=10;
+            //imgY+=10;
 
             obj.accelerateAtAngle(90);
         }
         if (Gdx.input.isKeyPressed(Keys.DOWN)) 
         {
-            imgY-=10; 
+            //imgY-=10; 
 
             obj.accelerateAtAngle(270);
         }
@@ -419,6 +419,8 @@ public class VideoGameFinal extends ApplicationAdapter
 
         mover.play();
 
+        float dt = Gdx.graphics.getDeltaTime();
+
         spawnTime += Gdx.graphics.getDeltaTime();
 
         Vector2 bounce;
@@ -452,18 +454,27 @@ public class VideoGameFinal extends ApplicationAdapter
 
         //itemRan();
 
-        obj.hide();
+        //obj.show();
+
+        handleInput();
+
+        obj.applyPhysics(dt);
+        if (obj.getSpeed() > 0) 
+        {
+			obj.setRotation(obj.getMotionAngle()-90f);
+		}
+
+        // ERROR in pancoordiantes in edgehandlet, not sure why
+        edgy.enforceEdges();
         
-        //edgy.enforceEdges();
         batch.begin();
 
         batch.draw(background,-1024,-768);
-        batch.draw(img, imgX, imgY);
+        //batch.draw(img, imgX, imgY);
+        artist.draw(obj);
         shadow.draw(batch, 1);
         goal.draw(batch, 1);
         label.draw(batch,1);
-        
-        handleInput();
 
         if (obj.overlaps(shadow))
         {
